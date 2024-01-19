@@ -19,7 +19,7 @@ import com.amazonaws.services.xray.model.Http;
 import com.crm.dto.*;
 //import com.crm.email.Email;
 import com.crm.kafka.AuditMessage;
-import com.crm.kafka.EsearchProducer;
+//import com.crm.kafka.EsearchProducer;
 import com.crm.model.*;
 import com.crm.repository.*;
 import com.crm.service.RetrievalService;
@@ -41,7 +41,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
-import org.springframework.kafka.core.KafkaTemplate;
+//import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -100,8 +100,8 @@ public class CrmController {
 	@Autowired
 	LeadsTableDtoRepo leadsTableDtoRepo;
 
-	@Autowired
-	KafkaTemplate<String, AuditMessage> kafkaTemplate;
+//	@Autowired
+//	KafkaTemplate<String, AuditMessage> kafkaTemplate;
 
 	@Autowired
 	AuditRepo auditRepo;
@@ -118,8 +118,8 @@ public class CrmController {
 	@Autowired
 	PaymentMilestoneRepo paymentMilestoneRepo;
 
-	@Autowired
-	EsearchProducer esearchProducer;
+//	@Autowired
+//	EsearchProducer esearchProducer;
 
 	// Hashmap ResponseObj
 	private HashMap<String, Object> responseObj = new HashMap<>(2);
@@ -478,29 +478,6 @@ public class CrmController {
 			e.printStackTrace();
 			throw new CustomException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-	}
-	
-	
-
-	@PostMapping("/test")
-	public String test1(@RequestHeader(required = false, value="Authorization") String token, @RequestBody String str)  {
-//		AmazonS3 amazonS3 =  awsClientConfig.awsClientConfiguration(token);
-		str.replaceAll("[^A-Za-z]","");
-		String s2 = str.toLowerCase();
-		Map<Character, Integer> hash = new HashMap<>();
-//		String[] split = str.split(" ");
-		char[] s1 = s2.replace(" ", "").toCharArray();
-		for(char s: s1) {
-			if(hash.containsKey(s)) {
-				hash.put(s, hash.get(s)+1);
-			} else {
-				hash.put(s, 1);
-			}
-		}
-		for(Map.Entry<Character, Integer> map: hash.entrySet()) {
-			System.out.println(map.getKey() + " : " +map.getValue());
-		}
-		return "ok";
 	}
 	
 	
@@ -1128,7 +1105,7 @@ public class CrmController {
 			String time = auditObj.getLocalDateTime().format(timeFormatter);
 			auditObj.setTime(time);
 
-			kafkaTemplate.send(TOPIC, auditObj);
+//			kafkaTemplate.send(TOPIC, auditObj);
 			return downloadServiceImpl.getDownloadedfile(contactId, fileUrl, deptName, token);
 			
 		} catch (Exception e) {
@@ -1317,24 +1294,7 @@ public class CrmController {
 					}
 					
 					productDescriptionRepo.saveAll(findAllById);
-					
-//					Stream<ProductDescription> productDescriptionStream = StreamSupport.stream(findAllById.spliterator(), false);
-//					
-//					productDescriptionStream.forEach(pds -> {
-//						if(!mrp.isEmpty()) {
-//							pds.setMrp(mrp);
-//							}
-//						
-//						if(!description.isEmpty()) {
-//							pds.setDescription(description);
-//							}
-//						
-//						if(!productTitle.isEmpty()) {
-//							pds.setProductTitle(token);
-//							}
-//					});
-					
-//					productDescriptionRepo.saveAll(findAllById);
+
 					
 					log.info("Exit Bulk update ");
 					return new ResponseEntity<> (findAllById, HttpStatus.OK);
@@ -1379,9 +1339,7 @@ public class CrmController {
 				log.info("bulk update contacts hit");
 				List<Contact> findAll = createContactRepo.findAll();
 				findAll.forEach(pd -> {
-//					pd.setDepartment(department);
-//					pd.setDesignation(designation);
-//					pd.setName(contactName);
+
 					pd.setAccount(accountOwner);
 				});
 				createContactRepo.saveAll(findAll);
@@ -1636,68 +1594,6 @@ public class CrmController {
 
 
 
-//	@PostMapping("/assignRole")
-//	@Transactional
-//	public ResponseEntity<?> assignRoles(@RequestHeader("roleName") String roleName,
-//										 @RequestHeader("userName") String userName) {
-//		try {
-//			Roles role = rolesRepo.findByRoleName(roleName).orElse(null);
-//			if (role == null) {
-//				throw new CustomException("roleName : " + roleName + " ,Does Not Exists!", HttpStatus.BAD_REQUEST);
-//			}
-//			DeptConfigT ckUsr = deptConfigTRepo.findByDeptRoleId(role.getId()).orElse(null);
-//			if (ckUsr != null) {
-//				throw new CustomException("Role Already Assigned To Sone Other User!", HttpStatus.BAD_REQUEST);
-//			}
-//			List<DeptConfigT> usrLst = deptConfigTRepo.findByDeptUsername(userName);
-//			if (usrLst == null || usrLst.isEmpty()) {
-//				throw new CustomException("userName : " + userName + " ,Does Not Exists!", HttpStatus.BAD_REQUEST);
-//			}
-//			DeptConfigT curUsr = usrLst.get(0);
-//			DeptConfigS dept = deptConfigSRepo.findById(role.getDepartmentId()).orElse(null);
-//			if (curUsr.getDeptRole() != null) {
-//				curUsr.setId(null);
-//			}
-//
-//			curUsr.setDeptRole(role);
-//			curUsr.setDeptDisplayName((dept.getCau()+"."+dept.getDeptName().toLowerCase().split(dept.getCau().toLowerCase())[1]).toUpperCase());
-//			curUsr.setDeptName(dept.getDeptName());
-////			curUsr.setBranch(dept.getBranch());
-//
-//			deptConfigTRepo.save(curUsr);
-//
-////			if(role.isPresent())
-////			{
-////				Optional<DeptConfigT> user= deptConfigTrepo.findByDeptRole(role.get());
-////				if(user.isPresent())
-////				{
-////					throw new CustomException("Role is already assigned to another user!!", HttpStatus.BAD_REQUEST);
-////				}
-////				users.setDeptRole(role.get());
-////				users.setId(null);;
-////				deptConfigTrepo.save(users);
-////			}
-//			return new ResponseEntity<>("Role assigned successfully!!", HttpStatus.OK);
-//		} catch (CustomException e) {
-////			System.out.println(e.getMessage());
-//			e.printStackTrace();
-//			throw new CustomException(e.getMessage(), HttpStatus.BAD_REQUEST);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			throw new CustomException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-//		}
-//	}
-
-
-	@PostMapping("/createUser")
-	public ResponseEntity<?> createUser(@RequestBody DeptConfigT user) {
-		deptConfigTRepo.save(user);
-		return new ResponseEntity<>(user, HttpStatus.OK);
-
-	}
-
-
-
 	@PostMapping("/generateQuotation")    // in LEAD
 	public ResponseEntity<?> generateQuotation(@RequestBody(required = false) TemplateDto templateDto,
 		@RequestHeader("deptName") String deptName, @RequestHeader("id") String id, @RequestHeader(value = "templateType") String templateType,
@@ -1726,20 +1622,6 @@ public class CrmController {
 			throw new CustomException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-
-//	@PostMapping("/template1")
-//	public ResponseEntity<?> insertUsers1(@RequestBody TemplateDto templateDto,
-//		@RequestHeader("deptName") String deptName, @RequestHeader("Authorization") String token) {
-//		try {
-//
-//			byte[] bytes = templateService.editTemplate1(templateDto, deptName, token);
-//			return new ResponseEntity<>(bytes, HttpStatus.OK);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			throw new CustomException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-//		}
-//
-//	}
 
 
 	@GetMapping("/getTemplate")
@@ -1801,7 +1683,7 @@ public class CrmController {
 			String time = auditObj.getLocalDateTime().format(timeFormatter);
 			auditObj.setTime(time);
 
-			kafkaTemplate.send(TOPIC, auditObj);
+//			kafkaTemplate.send(TOPIC, auditObj);
 
 			// start date
 			LocalDate startDate = auditObj.getLocalDateTime().toLocalDate();
@@ -1999,7 +1881,7 @@ public class CrmController {
 				String time = auditObj.getLocalDateTime().format(timeFormatter);
 				auditObj.setTime(time);
 
-				kafkaTemplate.send(TOPIC, auditObj);
+//				kafkaTemplate.send(TOPIC, auditObj);
 
 			}
 			if(leads.getAccount() != null) {
@@ -2013,7 +1895,7 @@ public class CrmController {
 				String time = auditObj.getLocalDateTime().format(timeFormatter);
 				auditObj.setTime(time);
 
-				kafkaTemplate.send(TOPIC, auditObj);
+//				kafkaTemplate.send(TOPIC, auditObj);
 
 			}
 			if(leads.getDescription() != null) {
@@ -2027,7 +1909,7 @@ public class CrmController {
 				String time = auditObj.getLocalDateTime().format(timeFormatter);
 				auditObj.setTime(time);
 
-				kafkaTemplate.send(TOPIC, auditObj);
+//				kafkaTemplate.send(TOPIC, auditObj);
 
 			}
 			Leads updatedLeads = leadsRepo.save(oldLeads);
@@ -2056,7 +1938,7 @@ public class CrmController {
 			String time = auditObj.getLocalDateTime().format(timeFormatter);
 			auditObj.setTime(time);
 
-			kafkaTemplate.send(TOPIC, auditObj);
+//			kafkaTemplate.send(TOPIC, auditObj);
 
 			leadsRepo.deleteAllById(ids);
 			return new ResponseEntity<>(leadsRepo.findAll(), HttpStatus.OK);
@@ -2095,16 +1977,6 @@ public class CrmController {
 			leads.setProducts(newProductList);
 			Leads save = leadsRepo.save(leads);
 
-//			String cost = productDescriptionRepo.findByProductTitle(productName).getMrp();
-//			int price = Integer.parseInt(cost) * qty;
-//			Integer finalPrice = price - (discount/100) * price;
-//
-//			LeadsTableDto leadsTableDto = new LeadsTableDto();
-//			leadsTableDto.setDiscount(discount);
-//			leadsTableDto.setQty(qty);
-//			leadsTableDto.setPrice(finalPrice);
-//			leadsTableDto.setLeadsId(id);
-//			leadsTableDtoRepo.save(leadsTableDto);
 			return new ResponseEntity<> (save, HttpStatus.OK);
 		} catch (Exception e) {
 			log.info(e.getMessage());
@@ -2152,19 +2024,7 @@ public class CrmController {
 		try {
 			log.info("editLead hit");
 			Leads existingLead = leadsRepo.findById(id).get();
-//			for(int i=0; i<leads.getProducts().size(); i++) {
-//
-//				if(leads.getProducts().get(i).getProduct() != null) {
-//					existingLead.getProducts().get(i).setProduct(leads.getProducts().get(i).getProduct());
-//				}
-//				if(leads.getProducts().get(i).getQuantity() != null) {
-//					existingLead.getProducts().get(i).setQuantity(leads.getProducts().get(i).getQuantity());
-//				}
-//				if(leads.getProducts().get(i).getDiscount() != null) {
-//					existingLead.getProducts().get(i).setDiscount(leads.getProducts().get(i).getDiscount());
-//				}
-//
-//			}
+
 			existingLead.setProducts(products);
 			Leads save = leadsRepo.save(existingLead);
 
@@ -2180,7 +2040,7 @@ public class CrmController {
 			String time = auditObj.getLocalDateTime().format(timeFormatter);
 			auditObj.setTime(time);
 
-			kafkaTemplate.send(TOPIC, auditObj);
+//			kafkaTemplate.send(TOPIC, auditObj);
 			return new ResponseEntity<> (save, HttpStatus.OK);
 		} catch (Exception e) {
 			log.info(e.getMessage());
@@ -2237,21 +2097,6 @@ public class CrmController {
 //	}
 
 
-	@GetMapping("/test")
-	public String test(@RequestHeader("Authorization") String token)  {
-
-		LinkedList<String> linkedList = new LinkedList<>();
-		linkedList.add("1");
-		linkedList.add("2");
-		linkedList.add("3");
-		linkedList.add("4");
-		linkedList.add("5");
-
-		System.out.println(linkedList.getLast());
-		return "ok";
-	}
-
-
 	@PostMapping("/saveDocument")
 	public ResponseEntity<?> saveDocument(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
 		try {
@@ -2298,7 +2143,7 @@ public class CrmController {
 			String time = auditObj.getLocalDateTime().format(timeFormatter);
 			auditObj.setTime(time);
 
-			kafkaTemplate.send(TOPIC, auditObj);
+//			kafkaTemplate.send(TOPIC, auditObj);
 			return new ResponseEntity<>(lead, HttpStatus.OK);
 		} catch (Exception e) {
 			log.info(e.getMessage());
@@ -2460,7 +2305,7 @@ public class CrmController {
 			auditMessage.setMilestoneDate(paymentMilestoneObjectFromFrontEnd.getPaymentDate());
 			auditMessage.setAction("Milestone created for amount " + sumOfTotalCost1);
 
-			kafkaTemplate.send(TOPIC, auditMessage);
+//			kafkaTemplate.send(TOPIC, auditMessage);
 
 			return new ResponseEntity<>(lead, HttpStatus.OK);
 		} catch (Exception e) {
@@ -2718,7 +2563,7 @@ public class CrmController {
 			AmazonS3Client awsClient = (AmazonS3Client) awsClientConfigService.awsClientConfiguration(token);
 			awsClient.putObject(deptName, "/" + lead.getLeadId() + "/" + "PO/" + file.getOriginalFilename(), file.getInputStream(),  null);
 
-			esearchProducer.send("", file.getOriginalFilename(), fd.getFileUrl());
+//			esearchProducer.send("", file.getOriginalFilename(), fd.getFileUrl());
 			boolean b = containsQRCode(file);
 
 			return new ResponseEntity<>(b, HttpStatus.OK);
@@ -2753,184 +2598,6 @@ public class CrmController {
 		}
 	}
 
-	//		// Front page data on front end
-//		@PostMapping("/fetchAllProducts")
-//		public ResponseEntity<?> getRtiFiles(@RequestHeader("page") int page, @RequestHeader("size") int size,
-//				@RequestHeader("Authorization") String token, HttpServletRequest request, @RequestBody FilterSort filterSort ) {
-//
-//			try {
-//
-//			log.info("fetchAllFiles >>>");
-//			responseObj.clear();
-//
-//			HashMap<String, String> filter = filterSort.getFilter();
-//			HashMap<String, String> sort = filterSort.getSort();
-//
-//
-//
-//			// filter sorting
-//			String sku="";
-////			LocalDateTime createdOnDate=null;
-//			String productTitle = "";
-//			String description="";
-//			String mrp="";
-//
-//			// 1
-//			if(filter == null && sort == null) {
-//
-//			Pageable paging = PageRequest.of(page, size, Sort.by("date").descending());
-//			Page<ProductDescription> findAll = productDescriptionRepo.findAll(paging);
-//
-//			responseObj.put("length", findAll.getTotalElements());
-//			responseObj.put("content", findAll.getContent());
-//			log.info("fetchAllFiles <<<");
-//
-//			return ResponseEntity.ok(responseObj);
-//			}
-//
-//
-//			// 2
-//			if(filter != null && sort == null) {
-//
-//
-//				if(filter.get("skuNo") != null) {
-//					 sku = filter.get("skuNo");
-//				}
-//				if(filter.get("productTitle") != null) {
-//					productTitle = filter.get("productTitle");
-//				}
-//				if(filter.get("Description") != null) {
-//					description = filter.get("Description");
-//				}
-//				if(filter.get("MRP") != null) {
-//					mrp = filter.get("MRP");
-//				}
-//				if(filter.get("date") != null) {
-//
-//					 System.out.println(filter.get("date"));
-//					 DateTimeFormatter forPattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-//					 LocalDateTime date = LocalDateTime.parse(filter.get("date") +" 00:00", forPattern);
-//					 LocalDateTime plusDays = date.plusDays(1);
-//					 Pageable paging = PageRequest.of(page, size);
-//
-//					 Page<ProductDescription> filterBySubject = productDescriptionRepo.findBySkuOrProductTitleOrDescriptionOrMrpAndDateBetween(
-//							 sku,  productTitle,  description,  mrp, date , plusDays,    paging);  // date=from   plusDays=to
-//
-//						responseObj.put("length", filterBySubject.getTotalElements());
-//						responseObj.put("content", filterBySubject.getContent());
-//
-//						return ResponseEntity.ok(responseObj);
-//				}
-//
-//				Pageable paging = PageRequest.of(page, size);
-//				Page<ProductDescription> filterBySubject = productDescriptionRepo.findBySkuOrProductTitleOrDescriptionOrMrp(sku,  productTitle,  description, mrp, paging);
-//
-//				responseObj.put("length", filterBySubject.getTotalElements());
-//				responseObj.put("content", filterBySubject.getContent());
-//
-//				return ResponseEntity.ok(responseObj);
-//			}
-//
-//
-//			// 3
-//			if(filter == null && sort != null) {
-//				String sortType = sort.get("type");
-//				String field = sort.get("title");
-//
-//				// ascending
-//				if(sortType.equals("Asc")) {
-//				Pageable paging = PageRequest.of(page, size, Sort.by(field).ascending());
-//				Page<ProductDescription> sorted = productDescriptionRepo.findAll(paging);
-//
-//				responseObj.put("length", sorted.getTotalElements());
-//				responseObj.put("content", sorted.getContent());
-//				}
-//
-//				// descending
-//				if(sortType.equals("Desc")) {
-//					Pageable paging = PageRequest.of(page, size, Sort.by(field).descending());
-//					Page<ProductDescription> sorted = productDescriptionRepo.findAll(paging);
-//
-//					responseObj.put("length", sorted.getTotalElements());
-//					responseObj.put("content", sorted.getContent());
-//					}
-//
-//				return ResponseEntity.ok(responseObj);
-//			}
-//
-//
-//			// 4
-//			if(filter != null && sort != null) {
-//
-//
-//				if(filter.get("skuNo") != null) {
-//					 sku = filter.get("skuNo");
-//				}
-//				if(filter.get("Description") != null) {
-//					description = filter.get("Description");
-//				}
-//				if(filter.get("productTitle") != null) {
-//					productTitle = filter.get("productTitle");
-//				}
-//				if(filter.get("MRP") != null) {
-//					mrp = filter.get("MRP");
-//				}
-//
-//				String sortType = sort.get("type");
-//				String field = sort.get("title");
-//
-//				if(sortType.equals("Asc") && filter.get("date") != null) {
-//					Pageable paging = PageRequest.of(page, size, Sort.by(field).ascending());
-//					DateTimeFormatter forPattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-//					LocalDateTime date = LocalDateTime.parse(filter.get("createdOnDate") +" 00:00", forPattern);
-//					LocalDateTime plusDays = date.plusDays(1);
-//
-//
-//					Page<ProductDescription> sorted = productDescriptionRepo.findBySkuOrProductTitleOrDescriptionOrMrpAndDateBetween(
-//							 sku,  productTitle,  description,  mrp, date , plusDays,  paging);  // date=from
-//
-////				Page<RTIFile> sorted = rtiFileRepository.findAllBySubjectContainsAndCreatedOnDateContainsAndStatusContainsAndPriorityContains(subject, createdOnDate, status, priority, paging);
-//
-//				responseObj.put("length", sorted.getTotalElements());
-//				responseObj.put("content", sorted.getContent());
-//				}
-//				if(sortType.equals("Asc") && filter.get("date") == null) {
-//					Pageable paging = PageRequest.of(page, size, Sort.by(field).ascending());
-//					Page<ProductDescription> sorted = productDescriptionRepo.findBySkuOrProductTitleOrDescriptionOrMrp(sku, productTitle, description, mrp, paging);
-//
-//					responseObj.put("length", sorted.getTotalElements());
-//					responseObj.put("content", sorted.getContent());
-//				}
-//
-//				if(sortType.equals("Desc") && filter.get("date") != null) {
-//
-//					Pageable paging = PageRequest.of(page, size, Sort.by(field).descending());
-//					DateTimeFormatter forPattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-//					LocalDateTime date = LocalDateTime.parse(filter.get("date") +" 00:00", forPattern);
-//					LocalDateTime plusDays = date.plusDays(1);
-//
-//					Page<ProductDescription> sorted = productDescriptionRepo.findBySkuOrProductTitleOrDescriptionOrMrpAndDateBetween(sku, productTitle, description, mrp, date, plusDays, paging);
-//
-//					responseObj.put("length", sorted.getTotalElements());
-//					responseObj.put("content", sorted.getContent());
-//
-//
-//				}
-//				if(sortType.equals("Desc") && filter.get("date") == null) {
-//					Pageable paging = PageRequest.of(page, size, Sort.by(field).descending());
-//					Page<ProductDescription> sorted = productDescriptionRepo.findBySkuOrProductTitleOrDescriptionOrMrp(sku, productTitle, description, mrp, paging);
-//
-//					responseObj.put("length", sorted.getTotalElements());
-//					responseObj.put("content", sorted.getContent());
-//				}
-//				return ResponseEntity.ok(responseObj);
-//			}
-//
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//				throw new CustomException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-//			}
-//			return ResponseEntity.internalServerError().body("Error in fetching files");
-//		}
+
 }
 
