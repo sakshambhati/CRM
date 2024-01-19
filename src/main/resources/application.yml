@@ -1,0 +1,68 @@
+server:
+  port: 9797
+
+spring:
+  kafka:
+    bootstrap-servers: 11.0.0.137:9092
+    consumer:
+      group-id: mygroup
+#    addresses: localhost:5672  
+ 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/auth/realms/sample/protocol/openid-connect/certs
+    h2:
+    console:
+      enabled: true         
+
+  application: 
+    name: crm_service
+  cloud:
+    discovery:
+      enabled: true
+    config:
+      discovery:
+        service-id: config
+        enabled: true
+  
+#  data:
+#    mongodb:
+#      uri: mongodb://11.0.0.70:50000,11.0.0.70:50001,11.0.0.70:50002/Rollback?retryWrites=false
+#      port: 27017
+#      host: 11.0.0.70
+#      #database: RTI_File 
+#      database: Eoffice_PA
+      
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1 
+  
+  
+  
+  
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+      #11.0.0.118:8081/eureka
+  instance:
+    hostname: localhost
+    #rti    
+      
+minio:
+  access:
+    name: minioadmin
+    secret: minioadmin
+  url: http://127.0.0.1:9000
+
+  rest-url: http://127.0.0.1
+  rest-port: 9000
+
+
+      
+      
+      
